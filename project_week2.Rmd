@@ -1,0 +1,19 @@
+---
+title: "Development of Data-driven Products"
+subtitle: "Course Project Week 2"
+author: "Jan"
+date: "10 Februar 2019"
+output: html_document
+---
+
+## Interactive leaflet map of my hometown
+```{r show_map, echo=FALSE}
+suppressMessages(library(leaflet))
+suppressMessages(library(dplyr))
+
+data.frame(lat = 49.782492,
+           lng = 9.968707) %>% leaflet %>% addTiles %>% addMarkers(popup = "University library")
+```
+
+
+
