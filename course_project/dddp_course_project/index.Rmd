@@ -1,0 +1,119 @@
+---
+title: "Reproducible pitch presentation"
+author: "Jan"
+date: "March 24 2019"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Overview
+
+- This app is intended to help you visualize the distribution of variables from different data sets by means of a histogram. 
+- You are able to fit three different standard distributions (normal, exponential, uniform) to the data 
+- The final results are then displayed over the histogram for a visual inspection of the fit.
+
+## Input Parameters
+
+- Data set: You can choose between three different data sets
+- Number of bins: Here you can choose the number of bins the histogram should split the data into
+- Distributions: Choose between normal, exponential or uniform distribution
+
+## Calculation
+
+A look into the server.R function:
+
+```{r calc, echo = TRUE, eval=FALSE}
+# switch data sets based on input data
+switch(input$data_set, 
+       "mtcars" = {
+         xlab <- "Miles per Gallon"
+         plot_data <- data.frame(x = mtcars$mpg)
+       },
+       "rivers" = {
+         xlab <- "Lengths of Major North American Rivers (in miles)"
+         plot_data <- data.frame(x = rivers)
+       },
+       "discoveries" = {
+         xlab <- "Yearly Numbers of Important Discoveries"
+         plot_data <- data.frame(x = as.numeric(discoveries))
+       })
+
+# draw the histogram with the specified number of bins
+plot_data %>% ggplot(aes(x = x)) +
+  geom_histogram(aes(y = ..density..), bins = input$bins) + 
+  theme_bw() +
+  theme(panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  labs(x = xlab, y = "Frequency") +
+  ggtitle(paste("Histogram of ", xlab)) -> plot
+
+# add distributions
+mean <- mean(plot_data$x)
+sd <- sd(plot_data$x)
+n <- nrow(plot_data)
+min <- min(plot_data$x)
+max <- max(plot_data$x)
+
+if(input$dnorm){
+  y_norm <- dnorm(plot_data$x, mean, sd)
+  plot <- plot + geom_line(aes(x = plot_data$x, y = y_norm),
+                           size = 1.4, color = "red")
+}
+if(input$dexp){
+  y_exp <- dexp(plot_data$x, rate = 1/mean)
+  plot <- plot + geom_line(aes(x = plot_data$x, y = y_exp),
+                           size = 1.4, color = "blue")
+}
+if(input$dunif){
+  y_unif <- dunif(plot_data$x, min = min, max = max)
+  plot <- plot + geom_line(aes(x = plot_data$x, y = y_unif),
+                           size = 1.4, color = "green")
+}
+
+plot
+```
+
+## Demo
+
+This is an exemplary output for the discoveries data set with number of bins = 8 and the normal distribution:
+
+```{r demo, echo=FALSE}
+
+suppressMessages(library(dplyr))
+suppressMessages(library(ggplot2))
+
+xlab <- "Yearly Numbers of Important Discoveries"
+plot_data <- data.frame(x = as.numeric(discoveries))
+
+
+# draw the histogram with the specified number of bins
+plot_data %>% ggplot(aes(x = x)) +
+  geom_histogram(aes(y = ..density..), bins = 8) + 
+  theme_bw() +
+  theme(panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  labs(x = xlab, y = "Frequency") +
+  ggtitle(paste("Histogram of ", xlab)) -> plot
+
+# add distributions
+mean <- mean(plot_data$x)
+sd <- sd(plot_data$x)
+n <- nrow(plot_data)
+min <- min(plot_data$x)
+max <- max(plot_data$x)
+
+
+y_norm <- dnorm(plot_data$x, mean, sd)
+plot <- plot + geom_line(aes(x = plot_data$x, y = y_norm),
+                         size = 1.4, color = "red")
+
+
+plot
+
+```
+    
