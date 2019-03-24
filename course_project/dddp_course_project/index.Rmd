@@ -79,6 +79,8 @@ plot
 
 ## Demo
 
+The app can be found here: https://jmm-p.shinyapps.io/dddp_course_project/
+
 This is an exemplary output for the discoveries data set with number of bins = 8 and the normal distribution:
 
 ```{r demo, echo=FALSE}
